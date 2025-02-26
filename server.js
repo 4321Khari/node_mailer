@@ -4,6 +4,8 @@ const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const { mailAccounts, emailSettings } = require("./data");
 
+const app = express();
+
 let morningMailsent = false;
 let afternoonMailsent = false;
 let nightMailsent = false;
@@ -97,6 +99,10 @@ cron.schedule("* * * * *", () => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.json("Welcome to this nodemailer");
+});
+
 // cron.schedule("* * * * *", async () => {
 //   const info = await transporter.sendMail({
 //     from: '"Abhishek Khari 👻" ', // sender address
@@ -118,7 +124,7 @@ cron.schedule("* * * * *", () => {
 // });
 
 // Create an instance of the express application
-const app = express();
+
 // Specify a port number for the server
 const port = 5000;
 // Start the server and listen to the port
