@@ -3,6 +3,10 @@ const express = require("express");
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const { mailAccounts, emailSettings } = require("./data");
+
+let morningMailsent = false;
+let afternoonMailsent = false;
+let nightMailsent = false;
 const transporter = nodemailer.createTransport({
   service: "gmail",
   //   host: "smtp.ethereal.email",
@@ -23,6 +27,17 @@ const sendEmail = async (subject, htmlContent) => {
       subject: subject,
       html: htmlContent,
     });
+    if (subject.inlcude("Morning!")) {
+      morningMailsent = true;
+    }
+    if (subject.inlcude("Time!!")) {
+      afternoonMailsent = true;
+    }
+    if (subject.inlcude("Night!")) {
+      nightMailsent = true;
+    }
+
+    afternoonMailsent;
     console.log(`Email sent: ${info.messageId}`);
   } catch (error) {
     console.error("Error sending email:", error);
@@ -60,12 +75,25 @@ cron.schedule("* * * * *", () => {
   const now = new Date();
   const hours = now.getHours();
 
+  if (hours >= 0 && hours < 8) {
+    morningMailsent = false;
+    afternoonMailsent = false;
+    nightMailsent = false;
+    console.log("Reset email flags at midnight.");
+  }
+
   if (hours >= 8 && hours < 13) {
-    sendEmail("Good Morning!", morningTemplate);
+    if (!morningMailsent) {
+      sendEmail("Good Morning!", morningTemplate);
+    }
   } else if (hours >= 13 && hours < 22) {
-    sendEmail("Lunch Time!", lunchTemplate);
+    if (!afternoonMailsent) {
+      sendEmail("Lunch Time!", lunchTemplate);
+    }
   } else if (hours >= 22) {
-    sendEmail("Good Night!", nightTemplate);
+    if (!nightMailsent) {
+      sendEmail("Good Night!", nightTemplate);
+    }
   }
 });
 
